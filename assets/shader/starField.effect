@@ -1,0 +1,159 @@
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: sprite-vs:vert
+      frag: sprite-fs:frag
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      rasterizerState:
+        cullMode: none
+      properties:
+        alphaThreshold: { value: 0.5 }
+        soundFrequency: { value: 0.5, editor: {
+          tooltip: "声音频率"
+        }}
+}%
+
+CCProgram sprite-vs %{
+  precision highp float;
+  #include <cc-global>
+  #if USE_LOCAL
+    #include <cc-local>
+  #endif
+  #if SAMPLE_FROM_RT
+    #include <common>
+  #endif
+  in vec3 a_position;
+  in vec2 a_texCoord;
+  in vec4 a_color;
+
+  out vec4 color;
+  out vec2 uv0;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 1);
+
+    #if USE_LOCAL
+      pos = cc_matWorld * pos;
+    #endif
+
+    #if USE_PIXEL_ALIGNMENT
+      pos = cc_matView * pos;
+      pos.xyz = floor(pos.xyz);
+      pos = cc_matProj * pos;
+    #else
+      pos = cc_matViewProj * pos;
+    #endif
+
+    uv0 = a_texCoord;
+    #if SAMPLE_FROM_RT
+      CC_HANDLE_RT_SAMPLE_FLIP(uv0);
+    #endif
+    color = a_color;
+
+    return pos;
+  }
+}%
+
+CCProgram sprite-fs %{
+  precision highp float;
+  #include <embedded-alpha>
+  #include <alpha-test>
+  #include <cc-global>
+  
+  #define LAYERS 4.0
+  in vec4 color;
+
+  uniform Contanst {
+    float soundFrequency;
+  };
+
+  mat2 Rot(float a){
+    float s = sin(a),c=cos(a);
+    return mat2(c,-s,s,c);
+  }
+
+  float Hash21(vec2 p){
+    p = fract(p*vec2(123.45,986.21));
+    p += dot(p,p+243.);
+    return fract(p.x*p.y);
+  }
+
+  float Star(vec2 uv,float n, float flare){
+    float d = length(uv);
+    float m = .02/d;
+    uv *= Rot(3.1415*n);
+    m += max(0.,1.-abs(uv.x*uv.y*1000.0))*flare;
+    uv *= Rot(3.1415/4.);
+    m += max(0.,1.-abs(uv.x*uv.y*1000.0))*.1*flare;
+    m *= smoothstep(1.,.2,d);
+    return m;
+  }
+
+  vec3 Blend(vec4 source,vec4 dest){
+    return source.rgb * source.a + dest.rgb * (1. - source.a);
+  }
+
+  vec4 StarLayer(vec2 uv){
+    vec4 col = vec4(0.);
+    vec2 gv = fract(uv) - .5;
+    vec2 id = floor(uv);
+
+    for(int y=-1;y<=1;y++){
+      for(int x=-1;x<=1;x++){
+        vec2 offs = vec2(x,y);
+        float n = Hash21(id+ offs);
+        float size = fract(n*44467.12);
+        float rotate = fract(n*4345.44)*3.1415;
+        float star = Star(gv-offs-vec2(n,fract(n*678.2313))+.5,n, smoothstep(.95,1.,size));
+         vec4 color = vec4(sin(vec3(.2,.3,.9) * fract(n*1222.2) * 6.2831) * .5 + .5, 1.); 
+        color *= vec4(.8, .1, .8,1.);
+        star *= sin(3.*cc_time.x+n*1232.23)*.5 + 1.5;
+        col += star*size*color;
+      }
+    }   
+    return col;
+  }
+
+  in vec2 uv0;
+
+  vec4 frag () {
+ 
+      vec2 uv = (uv0 - .5) * cc_screenSize.xy / cc_screenSize.y;
+      vec4 col = vec4(.0);
+      float t = cc_time.x * .1;
+      uv.x += 1.5 * t;
+      int count = 0;
+      for(float i = 0.;i < 1.;i += 1./LAYERS){
+        float depth = fract(i);
+        float scale = mix(20., 5., depth);
+        float fade = depth * smoothstep(1., .9, depth);
+        if(count < 2){
+          col += StarLayer(uv * scale + i * 422.1) * depth;
+        }else if(count == 2){
+          vec2 uv1 = (uv0 - .5) * cc_screenSize.xy / cc_screenSize.y;
+          uv1.y += soundFrequency/3.;
+          float m = .01/length(uv1);
+          col += m*vec4(0.2,.3,.9,1.)*1.5;
+          col = vec4(Blend(StarLayer(uv * scale + i * 422.1) * depth, col),1.);
+        }else{
+          col = vec4(Blend(StarLayer(uv * scale + i * 422.1) * depth, col),1.);
+        }
+        count++;
+      }
+
+      vec4 starField = col;
+
+    ALPHA_TEST(starField);
+
+    return starField;
+  }
+}%

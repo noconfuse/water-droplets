@@ -1,0 +1,28 @@
+{
+  "ver": "1.4.7",
+  "importer": "effect",
+  "imported": true,
+  "uuid": "0b51dda1-c077-4833-9b11-12a786366e1a",
+  "files": [
+    ".json"
+  ],
+  "subMetas": {},
+  "userData": {
+    "combinations": [
+      {
+        "USE_INSTANCING": [
+          false
+        ],
+        "USE_BATCHING": [
+          false
+        ],
+        "USE_LIGHTMAP": [
+          false
+        ],
+        "HAS_SECOND_UV": [
+          false
+        ]
+      }
+    ]
+  }
+}
