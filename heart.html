@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <title>使用桃心形方程绘制爱心</title>
+</head>
+<body>
+ <canvas></canvas>
+ <script>
+ var canvas = document.querySelector('canvas');
+ var ctx = canvas.getContext('2d');
+ canvas.width = window.innerWidth;
+ canvas.height = window.innerHeight;
+ var Heart = function(x, y) {
+  this.x = x;
+  this.y = y;
+  this.vertices = [];
+  for(let i=0; i<30; i++) {
+  var step = i / 30 * (Math.PI * 2);//设置心上面两点之间的角度，具体分成多少份，好像需要去试。
+  var vector = {
+   x : (15 * Math.pow(Math.sin(step), 3)),
+   y : -(13 * Math.cos(step) - 5 * Math.cos(2 * step) - 2 * Math.cos(3 * step) - Math.cos(4 * step))
+  }
+  this.vertices.push(vector);
+  }
+ }
+ Heart.prototype.draw = function() {
+  ctx.translate(-1000,this.y);//这一步跟ctx.shadowOffsetX必须一起使用，不明白为啥？
+  ctx.beginPath();
+  for(let i=0; i<30; i++) {
+  var vector = this.vertices[i];
+  ctx.lineTo(vector.x, vector.y);
+  }
+  ctx.shadowColor = "red";
+  ctx.shadowOffsetX = this.x+1000;
+  ctx.fill();
+ }
+ canvas.onmousedown = function(e) {
+  var x = e.offsetX;
+  var y = e.offsetY;
+  var heart = new Heart(x, y);
+  heart.draw();
+ }
+ </script>
+</body>
+</html>
