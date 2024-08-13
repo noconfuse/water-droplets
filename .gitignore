@@ -2,3 +2,4 @@ temp/**
 local/**
 library/**
 build
+.DS_Store
