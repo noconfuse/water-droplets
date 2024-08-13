@@ -17,7 +17,9 @@ export class MainScene extends Component {
     start () {
         const spriteMaterial = this.starField.getMaterial(0);
         this.spriteMaterial = spriteMaterial;
-        this.startRecord();
+        setTimeout(()=>{
+            this.startRecord();
+        },100)
     }
 
     init(){
@@ -44,8 +46,8 @@ export class MainScene extends Component {
                         barHeight = dataArray[i];
                     }
                 }
-                console.log(barHeight)
-                this.spriteMaterial.setProperty('soundFrequency',barHeight/400);
+                
+                this.spriteMaterial.setProperty('soundFrequency',barHeight/300-.25);
             };
 
             this.schedule(draw,0,Infinity);

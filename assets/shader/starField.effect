@@ -143,9 +143,7 @@ CCProgram sprite-fs %{
         float size = fract(n*44467.12);
         float rotate = fract(n*4345.44)*3.1415;
         vec2 starPos = gv-offs-vec2(n,fract(n*678.2313))+.5;
-
         vec2 offset = cos(cc_time.x*n)*0.1*vec2(cos(n*PI*2.),sin(n*PI*2.));
-
         float star = Star(starPos+offset, n, smoothstep(.95,1.,size));
          vec4 color = vec4(sin(vec3(.2,.3,.9) * fract(n*1222.2) * 6.2831) * .5 + .5, 1.); 
         color *= vec4(.8, .1, .8,1.);
@@ -163,6 +161,8 @@ CCProgram sprite-fs %{
       vec4 col = vec4(.0);
       float t = cc_time.x * .1;
       uv.x += 1. * t;
+      // uv.y += .1 * t;
+      // uv *= Rot(t*.5);
 
       vec3 c = vec3(uv.x, uv.y, 1.);
 
@@ -184,8 +184,9 @@ CCProgram sprite-fs %{
           col += StarLayer(uv * scale + i * 422.1) * depth;
         }else if(count == 2){
           vec2 uv1 = (uv0 - .5) * cc_screenSize.xy / cc_screenSize.y;
-          uv1.y += soundFrequency/3.;
-          float m = .01/length(uv1);
+          uv1.x += .368;
+          uv1.y += smoothstep(.1,.8,soundFrequency/2.);
+          float m = .02/length(uv1);
           col += m*vec4(0.2,.3,.9,1.)*1.5;
           col = vec4(Blend(StarLayer(uv * scale + i * 422.1) * depth, col),1.);
         }else{
