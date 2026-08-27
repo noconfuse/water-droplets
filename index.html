@@ -1,88 +1,196 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>water-droplets</title>
+    <title>Canvas 特效训练营</title>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --text: #2b3a55;
+            --muted: #8a97ad;
+            --faint: #eef1f7;
+            --border: #e3e9f2;
+            --accent: #4a7cf7;
+            --accent-2: #ee6c8e;
+            --done: #2ebd85;
+            --mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+
+        header {
+            padding: 44px 24px 26px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+        }
+
+        header h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: .02em; }
+        header p { margin: 0; color: var(--muted); }
+        header .intro { margin-top: 14px; font-size: 13px; }
+        header .intro .sep { margin: 0 6px; color: var(--border); }
+
+        main { max-width: 820px; margin: 0 auto; padding: 8px 24px 24px; }
+
+        .phase { margin: 34px 0; }
+
+        .phase-head {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .phase-head .p-no {
+            font-family: var(--mono);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .phase-head h2 { margin: 0; font-size: 19px; }
+        .phase-head .desc { margin-left: auto; color: var(--muted); font-size: 13px; }
+
+        .lesson {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 11px 4px;
+            border-bottom: 1px solid var(--faint);
+        }
+        .lesson .no {
+            width: 34px;
+            text-align: right;
+            font-family: var(--mono);
+            color: var(--muted);
+            font-size: 12px;
+            font-variant-numeric: tabular-nums;
+        }
+        .lesson .title { flex: 1; font-size: 14px; }
+        .lesson a.title { color: var(--text); }
+        .lesson a.title:hover { color: var(--accent); }
+        .lesson .title .api { color: var(--muted); font-size: 12px; }
+
+        .tag {
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .tag.lab { color: var(--done); }
+        .tag.work { color: var(--accent); }
+        .tag.soon { color: var(--muted); }
+
+        footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            padding: 20px 24px 40px;
+            border-top: 1px solid var(--faint);
+            margin-top: 8px;
+        }
+        footer a { color: var(--muted); text-decoration: underline; }
+    </style>
 </head>
 
 <body>
-    <!-- <audio controls crossorigin="anonymous"
-        src="https://dl.stream.qqmusic.qq.com/C400003HG9Yr1DMnec.m4a?guid=4413524581&vkey=9612730B0EDF4CA84717B3A4512E64AC078941BA7AA618984CDCA553E09A95BE68B3B76083878A726A81D4F8E3B5A3A230B58F892BABF52E&uin=&fromtag=120032">
-    </audio> -->
-    <button onclick="onClick()">play</button>
-    <canvas id="oscilloscope" width="800" height="400"></canvas>
+    <header>
+        <h1>Canvas 特效训练营</h1>
+        <p>从画一个方块，到写一个星云着色器</p>
+        <p class="intro">
+            <span style="color:var(--done)">参数实验室</span><span class="sep">=</span>滑块实时改参数，代码同步变化
+        </p>
+    </header>
+
+    <main>
+        <div class="phase">
+            <div class="phase-head"><span class="p-no">01</span><h2>基础绘制</h2><span class="desc">认识画布、坐标系与最常用的绘制 API</span></div>
+            <div class="lesson"><span class="no">01</span><a class="title" href="player.html?lesson=01-hello-canvas.js">画布与坐标系 <span class="api">getContext · fillRect · strokeRect · clearRect</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">02</span><a class="title" href="player.html?lesson=02-path-and-shape.js">路径与形状 <span class="api">beginPath · lineTo · arc · fill · stroke</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">03</span><a class="title" href="player.html?lesson=03-styles-gradients.js">样式与渐变色 <span class="api">createLinearGradient · addColorStop · createRadialGradient</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">04</span><a class="title" href="player.html?lesson=04-shadow-and-glow.js">阴影与透明度 <span class="api">shadowBlur · globalAlpha · save · restore</span></a><span class="tag lab">参数实验室</span></div>
+        </div>
+
+        <div class="phase">
+            <div class="phase-head"><span class="p-no">02</span><h2>图形数学</h2><span class="desc">用三角函数与参数方程理解坐标与图形</span></div>
+            <div class="lesson"><span class="no">05</span><a class="title" href="player.html?lesson=05-trig-planets.js">三角函数与圆形运动 <span class="api">Math.sin · Math.cos · arc</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">06</span><a class="title" href="player.html?lesson=06-heart-curve.js">参数方程曲线 <span class="api">心形曲线 · 采样连线</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">07</span><a class="title" href="player.html?lesson=07-bezier-wave.js">贝塞尔曲线 <span class="api">quadraticCurveTo · bezierCurveTo</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">08</span><a class="title" href="player.html?lesson=08-transform-fractal.js">变换矩阵 <span class="api">translate · rotate · scale · transform</span></a><span class="tag lab">参数实验室</span></div>
+        </div>
+
+        <div class="phase">
+            <div class="phase-head"><span class="p-no">03</span><h2>动画与交互</h2><span class="desc">让画面动起来，并回应鼠标</span></div>
+            <div class="lesson"><span class="no">09</span><a class="title" href="player.html?lesson=09-animation-runtime.js">动画循环与时间 <span class="api">requestAnimationFrame · deltaTime</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">10</span><a class="title" href="player.html?lesson=10-easing-physics.js">缓动与物理 <span class="api">重力 · 抛物线 · 反弹</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">11</span><a class="title" href="player.html?lesson=11-mouse-collision.js">鼠标交互与碰撞 <span class="api">mousemove · 力场 · 碰撞检测</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">12</span><a class="title" href="player.html?lesson=12-composite-blending.js">合成与混合模式 <span class="api">globalCompositeOperation · clip</span></a><span class="tag lab">参数实验室</span></div>
+        </div>
+
+        <div class="phase">
+            <div class="phase-head"><span class="p-no">04</span><h2>音频可视化</h2><span class="desc">引入 Web Audio，让声音驱动画面</span></div>
+            <div class="lesson"><span class="no">13</span><a class="title" href="player.html?lesson=13-audio-spectrum.js">Web Audio 频谱分析 <span class="api">AudioContext · AnalyserNode · getByteFrequencyData</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">14</span><a class="title" href="player.html?lesson=14-waveform-heart.js">波形与声控动画 <span class="api">getByteTimeDomainData · 声控心跳</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">15</span><a class="title" href="player.html?lesson=15-audio-particles.js">音频驱动视觉 <span class="api">低频 bass · 高频 treble · 粒子映射</span></a><span class="tag lab">参数实验室</span></div>
+        </div>
+
+        <div class="phase">
+            <div class="phase-head"><span class="p-no">05</span><h2>粒子与特效</h2><span class="desc">高频视觉：粒子系统与文字粒子</span></div>
+            <div class="lesson"><span class="no">16</span><a class="title" href="player.html?lesson=16-particle-system.js">粒子系统 <span class="api">粒子数组 · 更新循环 · 批量绘制</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">17</span><a class="title" href="player.html?lesson=17-mouse-particles.js">鼠标交互粒子 <span class="api">lerp 插值 · 聚集偏移 · 发光</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">18</span><a class="title" href="player.html?lesson=18-text-particles.js">文字粒子 <span class="api">离屏 canvas · getImageData 采样</span></a><span class="tag lab">参数实验室</span></div>
+        </div>
+
+        <div class="phase">
+            <div class="phase-head"><span class="p-no">06</span><h2>像素级图像处理</h2><span class="desc">读写每一个像素，做滤镜与特效</span></div>
+            <div class="lesson"><span class="no">19</span><a class="title" href="player.html?lesson=19-pixel-basics.js">像素操作 <span class="api">getImageData · putImageData · 灰度/反色/马赛克</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">20</span><a class="title" href="player.html?lesson=20-convolution.js">卷积滤镜 <span class="api">卷积核 · 模糊/锐化/浮雕/边缘</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">21</span><a class="title" href="player.html?lesson=21-image-effects.js">视频 / 图片特效 <span class="api">drawImage · 像素风 · 水波纹 · 扫描线</span></a><span class="tag lab">参数实验室</span></div>
+        </div>
+
+        <div class="phase">
+            <div class="phase-head"><span class="p-no">07</span><h2>物理与流体</h2><span class="desc">毕业级：力学模拟与效果模拟</span></div>
+            <div class="lesson"><span class="no">22</span><a class="title" href="player.html?lesson=22-spring-cloth.js">弹簧与摆 <span class="api">胡克定律 · 阻尼 · 布料约束</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">23</span><a class="title" href="player.html?lesson=23-water-droplets.js">透明折射球 <span class="api">折射 · 高光 · 边缘 · 阴影</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">24</span><a class="title" href="player.html?lesson=24-final-canvas.js">综合大作业 · 音画粒子宇宙 <span class="api">渐变 + 螺旋粒子 + 鼠标力场 + 音频爆发</span></a><span class="tag lab">参数实验室</span></div>
+        </div>
+
+        <div class="phase">
+            <div class="phase-head"><span class="p-no">08</span><h2>WebGL 入门</h2><span class="desc">进入 GPU 渲染管线：从三角形开始</span></div>
+            <div class="lesson"><span class="no">25</span><a class="title" href="player.html?lesson=25-webgl-overview.js">WebGL 全局观 <span class="api">渲染管线总览 · 顶点着色器 vs 片段着色器</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">26</span><a class="title" href="player.html?lesson=26-webgl-triangle.js">WebGL 初体验 <span class="api">渲染管线 · drawArrays · 着色器</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">27</span><a class="title" href="player.html?lesson=27-glsl-basics.js">GLSL 语言基础 <span class="api">attribute · varying 插值 · uniform · mix</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">28</span><a class="title" href="player.html?lesson=28-webgl-matrix.js">顶点缓冲与矩阵 <span class="api">顶点缓冲 · 旋转矩阵 · TRIANGLE_STRIP</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">29</span><a class="title" href="player.html?lesson=29-webgl-texture.js">纹理与 UV <span class="api">createTexture · texImage2D · texture2D</span></a><span class="tag lab">参数实验室</span></div>
+        </div>
+
+        <div class="phase">
+            <div class="phase-head"><span class="p-no">09</span><h2>Shader 特效修炼</h2><span class="desc">片段着色器：SDF、噪声与时间动画</span></div>
+            <div class="lesson"><span class="no">30</span><a class="title" href="player.html?lesson=30-sdf.js">UV 与 SDF 距离场 <span class="api">length() · 有向距离场 · smoothstep</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">31</span><a class="title" href="player.html?lesson=31-noise-fbm.js">噪声与 FBM <span class="api">hash · value noise · fBm · 域扭曲</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">32</span><a class="title" href="player.html?lesson=32-time-layers.js">时间动画与分层 <span class="api">uniform 时间 · mat2 · 多层视差 · 闪烁</span></a><span class="tag lab">参数实验室</span></div>
+        </div>
+
+        <div class="phase">
+            <div class="phase-head"><span class="p-no">10</span><h2>星云大作业</h2><span class="desc">解剖重写 master 分支的 starField 星云着色器</span></div>
+            <div class="lesson"><span class="no">33</span><a class="title" href="player.html?lesson=33-starfield.js">星云着色器解剖 <span class="api">FBM 星云 · 十字星芒 · 哈希网格星星</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">34</span><a class="title" href="player.html?lesson=34-audio-shader.js">音频驱动 Shader <span class="api">音频 → uniform · 声控星云</span></a><span class="tag lab">参数实验室</span></div>
+            <div class="lesson"><span class="no">35</span><a class="title" href="player.html?lesson=35-final-nova.js">综合大作业 · 终极 <span class="api">音画黑洞</span></a><span class="tag lab">参数实验室</span></div>
+        </div>
+    </main>
+
+    <footer>
+        完整大纲见 <a href="COURSE.md">COURSE.md</a> · 35 课由浅入深，最终汇入「音画黑洞」
+    </footer>
 </body>
-<script>
-
-    const WIDTH = 800;
-    const HEIGHT = 400;
-
-    let canvas,
-        canvasCtx;
-
-    canvas = document.getElementById("oscilloscope");
-    canvasCtx = canvas.getContext("2d");
-
-
-    let bgImg = new Image();
-    bgImg.src = './bg.webp';
-
-    bgImg.onload = function () {
-       
-    }
-
-
-    function onClick() {
-
-
-        navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(stream => {
-            // const $audio = document.querySelector('audio');
-            const ac = new (window.AudioContext || window.webkitAudioContext)();
-            const source = ac.createMediaStreamSource(stream)
-            var analyser = ac.createAnalyser();
-            analyser.fftSize = 2048;
-            var bufferLength = analyser.frequencyBinCount;
-            var dataArray = new Uint8Array(bufferLength);
-
-            // 绘制一个当前音频源的示波器
-
-            function draw() {
-
-                drawVisual = requestAnimationFrame(draw);
-                analyser.getByteFrequencyData(dataArray);
-
-                canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
-                canvasCtx.drawImage(bgImg,0,0,WIDTH,HEIGHT);
-
-
-                var barWidth = (WIDTH / bufferLength) * 2.5;
-                var barHeight;
-                var x = 0;
-
-                for (var i = 0; i < bufferLength; i++) {
-                    barHeight = dataArray[i];
-                    canvasCtx.fillStyle = 'rgb(' + (barHeight + 100) + ',250,250)';
-                    canvasCtx.fillRect(x, HEIGHT - barHeight / 1, barWidth, barHeight / 1);
-                    x += barWidth + 1;
-                }
-            };
-
-            draw();
-            source.connect(analyser)
-
-        })
-
-    }
-
-
-
-
-
-
-
-</script>
 
 </html>

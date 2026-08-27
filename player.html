@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas 特效训练营 · 参数实验室</title>
+    <link rel="stylesheet" href="lib/codemirror/codemirror.min.css">
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --text: #2b3a55;
+            --muted: #8a97ad;
+            --faint: #eef1f7;
+            --border: #e3e9f2;
+            --accent: #4a7cf7;
+            --accent-2: #ee6c8e;
+            --done: #2ebd85;
+            --mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+
+        header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 26px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, .82);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .brand { font-weight: 700; font-size: 15px; white-space: nowrap; }
+        .brand .dot { color: var(--accent); }
+        .brand small { display: block; color: var(--muted); font-weight: 400; font-size: 11px; }
+
+        .lesson-head { flex: 1; min-width: 0; }
+        .lesson-head .no {
+            display: inline-block;
+            color: var(--accent);
+            font-family: var(--mono);
+            font-size: 12px;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+        .lesson-head h1 { display: inline; font-size: 18px; margin: 0; }
+        .lesson-head .sub { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+        .nav { display: flex; gap: 8px; align-items: center; }
+        .nav button, .nav select {
+            background: transparent;
+            color: var(--text);
+            border: none;
+            padding: 6px 10px;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .nav button:hover { background: var(--faint); color: var(--accent); }
+        .nav select { border: 1px solid var(--border); background: #fff; }
+
+        main {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+        }
+
+        .stage { padding: 26px 28px; }
+
+        .stage canvas {
+            display: block;
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #0e1320;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 14px;
+        }
+
+        .toolbar button {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .toolbar button:hover { background: var(--faint); color: var(--accent); }
+        .toolbar button.active { color: var(--accent); font-weight: 600; }
+
+        .toolbar .step { flex: 1; display: none; align-items: center; gap: 10px; }
+        .toolbar.stepmode .step { display: flex; }
+        .toolbar input[type="range"] { flex: 1; accent-color: var(--accent); }
+        .toolbar .step-label { font-size: 12px; color: var(--muted); min-width: 140px; }
+
+        aside.controls {
+            border-left: 1px solid var(--border);
+            padding-left: 26px;
+            padding-top: 26px;
+        }
+
+        aside.controls h3 {
+            margin: 0 0 4px;
+            font-size: 12px;
+            color: var(--muted);
+            letter-spacing: .1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        aside.controls h3 .reset {
+            font-size: 11px;
+            cursor: pointer;
+            color: var(--muted);
+            background: none;
+            border: none;
+            letter-spacing: 0;
+        }
+        aside.controls h3 .reset:hover { color: var(--accent); }
+
+        .ctrl { padding: 14px 0 12px; border-bottom: 1px solid var(--faint); }
+        .ctrl:last-child { border-bottom: none; }
+        .ctrl label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12.5px;
+            margin-bottom: 6px;
+        }
+        .ctrl .val {
+            color: var(--accent);
+            font-family: var(--mono);
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+        .ctrl input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+        .ctrl input[type="color"] {
+            width: 100%;
+            height: 30px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+            padding: 2px;
+        }
+        .ctrl select {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #fff;
+            color: var(--text);
+            font-size: 12.5px;
+            cursor: pointer;
+        }
+        .ctrl .toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .ctrl .toggle input { accent-color: var(--accent); width: auto; }
+
+        section.code {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 22px 28px 0;
+            border-top: 1px solid var(--border);
+        }
+        .code-wrap {
+            position: relative;
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.9;
+            overflow-x: auto;
+            padding: 14px 16px 8px;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: #fff;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            opacity: .65;
+            transition: opacity .15s, color .15s, border-color .15s;
+        }
+        .copy-btn:hover { opacity: 1; color: var(--accent); border-color: var(--accent); }
+        .code-wrap .line { display: block; white-space: pre; color: #4b5876; }
+        .code-wrap .k { color: var(--accent-2); font-weight: 600; }
+        .code-wrap .cv {
+            color: #b45309;
+            transition: background .25s, box-shadow .25s;
+            border-radius: 3px;
+            padding: 0 1px;
+        }
+        .code-wrap .cv.flash {
+            background: rgba(74, 124, 247, .18);
+            box-shadow: 0 0 0 2px rgba(74, 124, 247, .35);
+        }
+
+        footer.challenge {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 20px 28px 40px;
+        }
+        .challenge-card {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            border-top: 1px solid var(--border);
+            padding-top: 14px;
+        }
+        .challenge-card h4 { margin: 0; font-size: 13px; color: var(--accent-2); white-space: nowrap; }
+        .challenge-card p { margin: 0; font-size: 13px; color: var(--muted); flex: 1; }
+        .challenge-card .status { margin-left: 8px; font-size: 12px; white-space: nowrap; }
+        .challenge-card.done h4, .challenge-card.done .status { color: var(--done); }
+
+@media (max-width: 860px) {
+            main { grid-template-columns: 1fr; }
+        }
+
+        /* 完整代码弹窗 */
+        .modal-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 15, 25, .55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            padding: 20px;
+        }
+        .modal-mask.open { display: flex; }
+        .modal-box {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 20px 60px rgba(10, 15, 25, .4);
+            max-width: 960px;
+            width: 100%;
+            max-height: 86vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .modal-head .actions { display: flex; gap: 8px; }
+        .modal-head button {
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text);
+            border-radius: 7px;
+            padding: 4px 12px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .modal-head button:hover { border-color: var(--accent); color: var(--accent); }
+        .modal-body {
+            overflow: auto;
+            padding: 0;
+            font-family: var(--mono);
+            font-size: 12px;
+            line-height: 1.6;
+            white-space: pre;
+            color: #4b5876;
+            background: #fbfcfe;
+        }
+        .modal-body .CodeMirror {
+            height: 62vh;
+            font-family: var(--mono);
+            font-size: 12.5px;
+            line-height: 1.65;
+        }
+        /* 编辑器主题（浅色，配合课程配色） */
+        .CodeMirror.cm-s-lab { background: #fbfcfe; color: #3b4a63; }
+        .cm-s-lab .CodeMirror-gutters { background: #f3f6fb; border-right: 1px solid #e3e9f2; }
+        .cm-s-lab .CodeMirror-linenumber { color: #b3bdcf; }
+        .cm-s-lab .CodeMirror-cursor { border-left: 1px solid #4a7cf7; }
+        .cm-s-lab .cm-keyword { color: #7b4dce; }
+        .cm-s-lab .cm-string, .cm-s-lab .cm-string-2 { color: #b45309; }
+        .cm-s-lab .cm-comment { color: #8a97ad; font-style: italic; }
+        .cm-s-lab .cm-number { color: #0e9c8a; }
+        .cm-s-lab .cm-tag { color: #4a7cf7; }
+        .cm-s-lab .cm-attribute { color: #ee6c8e; }
+        .cm-s-lab .cm-variable-2 { color: #2b3a55; }
+        .cm-s-lab .cm-def { color: #2b3a55; }
+        .cm-s-lab .cm-operator { color: #7b4dce; }
+        .cm-s-lab .cm-builtin { color: #0e9c8a; }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="brand">
+            Canvas 特效训练营<span class="dot">·</span>
+            <small>参数实验室 <span id="ver" style="color:var(--accent)"></span></small>
+        </div>
+        <div class="lesson-head">
+            <span class="no" id="no"></span><h1 id="title"></h1>
+            <span class="sub" id="subtitle"></span>
+        </div>
+        <div class="nav">
+            <button id="prev">← 上一课</button>
+            <select id="picker"></select>
+            <button id="next">下一课 →</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="stage">
+            <canvas id="scene"></canvas>
+            <div class="toolbar" id="toolbar">
+                <button id="btnStep">逐步拆解</button>
+                <button id="btnAudio" style="display:none">▶ 播放音乐</button>
+                <div class="step">
+                    <button id="btnPlay">▶ 播放</button>
+                    <input type="range" id="stepRange" min="0" max="100" value="100">
+                    <span class="step-label" id="stepLabel"></span>
+                </div>
+            </div>
+        </section>
+        <aside class="controls">
+            <h3>参数<span><button class="reset" id="reset">重置</button></span></h3>
+            <div id="controls"></div>
+        </aside>
+    </main>
+
+    <section class="code">
+        <div class="code-wrap">
+            <button class="copy-btn" id="btnCopy">复制</button>
+            <button class="copy-btn" id="btnFull" style="right:64px">完整代码</button>
+            <div id="code"></div>
+        </div>
+    </section>
+
+    <footer class="challenge" id="challenge"></footer>
+
+    <div class="modal-mask" id="modalMask">
+        <div class="modal-box">
+            <div class="modal-head">
+                <span>完整可运行代码 · 独立 HTML（保存为 .html 直接打开）</span>
+                <div class="actions">
+                    <button id="copyFull">复制完整代码</button>
+                    <button id="closeModal">关闭</button>
+                </div>
+            </div>
+            <div class="modal-body" id="fullCodeWrap"></div>
+        </div>
+    </div>
+
+    <!-- 独立运行模板：/*__LESSON__*/ 与 /*__ASSETS__*/ 由播放器填充，<\/script> 会还原为 </script> -->
+    <script type="text/template" id="standaloneTpl"><!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Canvas 参数实验室 · 单课运行版</title>
+<style>
+ body{margin:0;background:#f5f7fb;font-family:system-ui,-apple-system,"PingFang SC",sans-serif;color:#2b3a55}
+ .wrap{display:flex;gap:16px;padding:16px;max-width:1200px;margin:0 auto}
+ canvas{border:1px solid #e3e9f2;border-radius:10px;background:#0e1320;flex:1;max-width:72%}
+ .panel{width:280px;flex-shrink:0}
+ h2{font-size:15px;margin:0 0 8px}
+ .ctrl{margin-bottom:10px;font-size:12.5px}
+ .ctrl label{display:flex;justify-content:space-between}
+ .ctrl input[type=range]{width:100%;accent-color:#4a7cf7}
+ .ctrl input[type=color]{width:100%;border:none;height:26px;padding:0}
+ .ctrl select{width:100%;padding:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <canvas id="scene"></canvas>
+ <div class="panel"><h2>参数</h2><div id="panel"></div></div>
+</div>
+<script>window.LESSON = /*__LESSON__*/;<\/script>
+/*__ASSETS__*/
+<script>
+(function(){
+  const canvas = document.getElementById('scene');
+  const L = window.LESSON;
+  canvas.width = L.width; canvas.height = L.height;
+  const W = L.width, H = L.height;
+  const params = {};
+  L.params.forEach(d => params[d.key] = d.value);
+
+  // 背景图（像素课用）
+  window.BG_IMG = null;
+  if (window.BG_B64) { const img = new Image(); img.src = 'data:image/webp;base64,' + window.BG_B64; img.onload = () => window.BG_IMG = img; }
+
+  // 控件面板
+  const panel = document.getElementById('panel');
+  L.params.forEach(d => {
+    const row = document.createElement('div'); row.className = 'ctrl';
+    const lab = document.createElement('label'); lab.textContent = d.label;
+    const val = document.createElement('span');
+    let input;
+    if (d.type === 'color') {
+      input = document.createElement('input'); input.type = 'color'; input.value = params[d.key];
+      val.textContent = params[d.key];
+      input.oninput = e => { params[d.key] = e.target.value; val.textContent = e.target.value; };
+    } else if (d.type === 'select') {
+      input = document.createElement('select');
+      d.options.forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; input.appendChild(op); });
+      input.value = params[d.key];
+      input.onchange = e => params[d.key] = e.target.value;
+      val.textContent = params[d.key];
+    } else if (d.type === 'bool') {
+      input = document.createElement('input'); input.type = 'checkbox'; input.checked = !!params[d.key];
+      input.onchange = e => params[d.key] = e.target.checked;
+      val.textContent = params[d.key];
+    } else {
+      input = document.createElement('input'); input.type = 'range';
+      input.min = d.min; input.max = d.max; input.step = d.step || 1; input.value = params[d.key];
+      input.oninput = e => { params[d.key] = parseFloat(e.target.value); val.textContent = params[d.key]; };
+    }
+    lab.appendChild(val);
+    row.appendChild(lab); row.appendChild(input);
+    panel.appendChild(row);
+  });
+
+  // 上下文：WebGL 或 2D
+  let ctx = null, glInfo = null;
+  if (L.webgl) {
+    const gl = canvas.getContext('webgl', { antialias: true, preserveDrawingBuffer: true });
+    const csh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
+    const prog = gl.createProgram();
+    gl.attachShader(prog, csh(gl.VERTEX_SHADER, L.gl.vs));
+    gl.attachShader(prog, csh(gl.FRAGMENT_SHADER, L.gl.fs));
+    gl.linkProgram(prog); gl.useProgram(prog);
+    glInfo = { gl, program: prog, U: n => gl.getUniformLocation(prog, n), A: n => gl.getAttribLocation(prog, n) };
+    if (L.gl.setup) L.gl.setup(glInfo);
+  } else {
+    ctx = canvas.getContext('2d');
+  }
+
+  // 鼠标
+  const mouse = { x: 0, y: 0, inside: false, down: false };
+  canvas.addEventListener('mousemove', e => { const r = canvas.getBoundingClientRect(); mouse.x = (e.clientX - r.left) * W / r.width; mouse.y = (e.clientY - r.top) * H / r.height; mouse.inside = true; });
+  canvas.addEventListener('mouseleave', () => mouse.inside = false);
+  canvas.addEventListener('mousedown', () => mouse.down = true);
+  window.addEventListener('mouseup', () => mouse.down = false);
+
+  // 音频
+  const sound = { dataArray: null, wave: null, level: 0, playing: false };
+  if (L.audio) {
+    const btn = document.createElement('button');
+    btn.textContent = '▶ 播放音乐';
+    btn.style.cssText = 'margin-top:12px;padding:6px 14px;border:1px solid #4a7cf7;border-radius:8px;color:#4a7cf7;background:#fff;cursor:pointer';
+    panel.appendChild(btn);
+    btn.onclick = () => {
+      if (!window.MUSIC_B64) { btn.textContent = '缺少音频数据'; return; }
+      if (sound.playing) { sound.audio.pause(); sound.playing = false; btn.textContent = '▶ 播放音乐'; return; }
+      const ac = new AudioContext();
+      const audio = document.createElement('audio');
+      audio.src = 'data:audio/mp4;base64,' + window.MUSIC_B64;
+      document.body.appendChild(audio);
+      const src = ac.createMediaElementSource(audio);
+      const an = ac.createAnalyser(); an.fftSize = 2048;
+      sound.analyser = an; sound.dataArray = new Uint8Array(an.frequencyBinCount); sound.wave = new Uint8Array(an.frequencyBinCount);
+      src.connect(an); src.connect(ac.destination); an.connect(ac.destination);
+      sound.audio = audio;
+      audio.play().then(() => { sound.playing = true; btn.textContent = '♪ 播放中'; });
+    };
+  }
+
+  // 渲染循环
+  let t = 0, last = null, step = 1;
+  function frame(now) {
+    if (last == null) last = now;
+    t += (now - last) / 1000; last = now;
+    if (sound.playing && sound.analyser) {
+      sound.analyser.getByteFrequencyData(sound.dataArray);
+      if (sound.wave) sound.analyser.getByteTimeDomainData(sound.wave);
+      let lvl = 0; for (let i = 0; i < sound.dataArray.length; i += 16) lvl = Math.max(lvl, sound.dataArray[i]);
+      sound.level = sound.level * 0.65 + lvl * 0.35;
+    }
+    if (L.webgl && glInfo) {
+      glInfo.gl.viewport(0, 0, W, H);
+      L.gl.frame(glInfo, params, t, step, mouse, sound);
+    } else if (ctx) {
+      if (!L.persist) ctx.clearRect(0, 0, W, H);
+      L.draw(ctx, params, t, step, mouse, sound);
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();<\/script>
+</body>
+</html></script>
+
+    <script src="lib/codemirror/codemirror.min.js?v=44"></script>
+    <script src="lib/codemirror/javascript.min.js?v=44"></script>
+    <script src="lib/codemirror/xml.min.js?v=44"></script>
+    <script src="lib/codemirror/css.min.js?v=44"></script>
+    <script src="lib/codemirror/htmlmixed.min.js?v=44"></script>
+    <script src="music-data.js?v=44"></script>
+    <script src="image-data.js?v=44"></script>
+    <script src="player.js?v=44"></script>
+</body>
+
+</html>
